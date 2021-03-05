@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 
-#include <ovc5_driver/uio_driver.h>
+#include <ovc5_driver/uio_driver.hpp>
 
 UIODriver::UIODriver(int uio_num, size_t map_size)
 {
@@ -36,8 +36,8 @@ void UIODriver::setResetRegisterMask(unsigned int reg_addr, unsigned int mask)
 void UIODriver::waitInterrupt()
 {
   unsigned int dummy;
-  // Start by resetting status register
-  writeRegister(reset_register, reset_mask);
+  // Start by resetting status register (only the masked bits)
+  writeRegister(reset_register, readRegister(reset_register) & (~reset_mask));
   // Reset UIO and blocking read
   write(uio_file, (char *)&IRQ_RST, sizeof(IRQ_RST));
   read(uio_file, &dummy, sizeof(dummy));
